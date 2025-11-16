@@ -24,11 +24,12 @@ st.write(
 # Load data
 # -----------------------------
 @st.cache_data
-def load_data(uploaded_file=None, default_path="EJI_2024_New_Mexico_CLEAN.csv"):
+def load_data(uploaded_file=None, default_path="datasets/EJI_2024_New_Mexico_CLEAN.csv"):
     if uploaded_file is not None:
         return pd.read_csv(uploaded_file)
     else:
         return pd.read_csv(default_path)
+
 
 st.sidebar.header("Data Source")
 
@@ -309,3 +310,4 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
