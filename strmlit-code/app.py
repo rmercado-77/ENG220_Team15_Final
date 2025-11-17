@@ -66,7 +66,7 @@ if data is None:
 # -----------------------------
 # Indicator definitions
 # -----------------------------
-st.header("📘 Indicator Definitions")
+st.header("Indicator Definitions")
 
 # ---- 1. Base definitions for key columns that actually exist in your file ----
 base_definitions = {
@@ -456,3 +456,4 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
