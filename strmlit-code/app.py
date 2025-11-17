@@ -62,7 +62,93 @@ if data is None:
         with st.expander("Show error details"):
             st.code(data_load_error)
     st.stop()
+# -----------------------------
+# Dataset overview
+# -----------------------------
+st.subheader("Dataset Overview")
 
+st.write(f"**Rows:** {data.shape[0]} &nbsp;&nbsp; | &nbsp;&nbsp; **Columns:** {data.shape[1]}")
+st.dataframe(data.head(), use_container_width=True)
+
+with st.expander("Show summary statistics"):
+    st.write("### Numeric Columns Summary")
+    st.write(data.describe())
+
+# -----------------------------
+# Sidebar controls for plotting
+# -----------------------------
+st.sidebar.header("Plot Settings")
+
+all_cols = data.columns.tolist()
+
+plot_type = st.sidebar.selectbox(
+    "Plot type",
+    ["Line", "Scatter", "Bar", "Histogram", "Box"]
+)
+
+x_col = st.sidebar.selectbox(
+    "X-axis",
+    options=all_cols,
+    index=0 if len(all_cols) > 0 else None
+)
+
+y_col = None
+if plot_type in ["Line", "Scatter", "Bar", "Box"]:
+    possible_y_cols = [c for c in all_cols if c != x_col]
+    if possible_y_cols:
+        y_col = st.sidebar.selectbox(
+            "Y-axis",
+            options=possible_y_cols,
+            index=0
+        )
+
+color_col = st.sidebar.selectbox(
+    "Color (optional)",
+    options=["None"] + all_cols,
+    index=0
+)
+if color_col == "None":
+    color_col = None
+
+# -----------------------------
+# Optional filtering
+# -----------------------------
+st.sidebar.header("Filter Data (Optional)")
+filter_col = st.sidebar.selectbox(
+    "Column to filter on",
+    options=["None"] + all_cols,
+    index=0
+)
+
+filtered_data = data.copy()
+
+if filter_col != "None":
+    if pd.api.types.is_numeric_dtype(filtered_data[filter_col]):
+        min_val = float(filtered_data[filter_col].min())
+        max_val = float(filtered_data[filter_col].max())
+        selected_range = st.sidebar.slider(
+            f"Range for {filter_col}",
+            min_value=min_val,
+            max_value=max_val,
+            value=(min_val, max_val)
+        )
+        filtered_data = filtered_data[
+            (filtered_data[filter_col] >= selected_range[0]) &
+            (filtered_data[filter_col] <= selected_range[1])
+        ]
+    else:
+        unique_vals = sorted(filtered_data[filter_col].dropna().unique().tolist())
+        if len(unique_vals) > 50:
+            st.sidebar.info(
+                f"{filter_col} has many unique values ({len(unique_vals)}). "
+                "You can still select a subset below."
+            )
+        selected_vals = st.sidebar.multiselect(
+            f"Values for {filter_col}",
+            options=unique_vals,
+            default=unique_vals
+        )
+        filtered_data = filtered_data[filtered_data[filter_col].isin(selected_vals)]
 # -----------------------------
 # Indicator definitions
 # -----------------------------
@@ -242,94 +328,6 @@ for col in data.columns:
 st.dataframe(pd.DataFrame(rows), use_container_width=True)
 
 # -----------------------------
-# Dataset overview
-# -----------------------------
-st.subheader("Dataset Overview")
-
-st.write(f"**Rows:** {data.shape[0]} &nbsp;&nbsp; | &nbsp;&nbsp; **Columns:** {data.shape[1]}")
-st.dataframe(data.head(), use_container_width=True)
-
-with st.expander("Show summary statistics"):
-    st.write("### Numeric Columns Summary")
-    st.write(data.describe())
-
-# -----------------------------
-# Sidebar controls for plotting
-# -----------------------------
-st.sidebar.header("Plot Settings")
-
-all_cols = data.columns.tolist()
-
-plot_type = st.sidebar.selectbox(
-    "Plot type",
-    ["Line", "Scatter", "Bar", "Histogram", "Box"]
-)
-
-x_col = st.sidebar.selectbox(
-    "X-axis",
-    options=all_cols,
-    index=0 if len(all_cols) > 0 else None
-)
-
-y_col = None
-if plot_type in ["Line", "Scatter", "Bar", "Box"]:
-    possible_y_cols = [c for c in all_cols if c != x_col]
-    if possible_y_cols:
-        y_col = st.sidebar.selectbox(
-            "Y-axis",
-            options=possible_y_cols,
-            index=0
-        )
-
-color_col = st.sidebar.selectbox(
-    "Color (optional)",
-    options=["None"] + all_cols,
-    index=0
-)
-if color_col == "None":
-    color_col = None
-
-# -----------------------------
-# Optional filtering
-# -----------------------------
-st.sidebar.header("Filter Data (Optional)")
-filter_col = st.sidebar.selectbox(
-    "Column to filter on",
-    options=["None"] + all_cols,
-    index=0
-)
-
-filtered_data = data.copy()
-
-if filter_col != "None":
-    if pd.api.types.is_numeric_dtype(filtered_data[filter_col]):
-        min_val = float(filtered_data[filter_col].min())
-        max_val = float(filtered_data[filter_col].max())
-        selected_range = st.sidebar.slider(
-            f"Range for {filter_col}",
-            min_value=min_val,
-            max_value=max_val,
-            value=(min_val, max_val)
-        )
-        filtered_data = filtered_data[
-            (filtered_data[filter_col] >= selected_range[0]) &
-            (filtered_data[filter_col] <= selected_range[1])
-        ]
-    else:
-        unique_vals = sorted(filtered_data[filter_col].dropna().unique().tolist())
-        if len(unique_vals) > 50:
-            st.sidebar.info(
-                f"{filter_col} has many unique values ({len(unique_vals)}). "
-                "You can still select a subset below."
-            )
-        selected_vals = st.sidebar.multiselect(
-            f"Values for {filter_col}",
-            options=unique_vals,
-            default=unique_vals
-        )
-        filtered_data = filtered_data[filtered_data[filter_col].isin(selected_vals)]
-
-# -----------------------------
 # Plot section
 # -----------------------------
 st.subheader("Interactive Visualization")
@@ -456,4 +454,5 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
