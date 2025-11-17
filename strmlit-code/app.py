@@ -235,14 +235,6 @@ with st.expander("Show summary statistics"):
     st.write("### Numeric Columns Summary")
     st.write(data.describe())
 
-# --- Column info with definitions ---
-with st.expander("Show column info with definitions"):
-    col_info = pd.DataFrame({
-        "Column": data.columns,
-        "Data Type": [str(dtype) for dtype in data.dtypes],
-        "Definition": [ABBREV_DEFS.get(col, "—") for col in data.columns]
-    })
-    st.table(col_info)
 
 # --- Abbreviation reference section ---
 st.subheader("Abbreviation Reference Guide")
@@ -457,6 +449,7 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
 
 
