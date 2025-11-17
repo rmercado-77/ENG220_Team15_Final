@@ -215,7 +215,7 @@ suffix_descriptions = {
 }
 st.subheader("All Columns with Definitions")
 
-col_list = list(df.columns)
+col_list = list(data.columns)
 table_rows = []
 
 for col in col_list:
@@ -486,6 +486,7 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
 
 
