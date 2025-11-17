@@ -82,7 +82,7 @@ ABBREV_DEFS = {
 # -----------------------------
 # Dataset overview
 # -----------------------------
-st.subheader("📁 Dataset Overview")
+st.subheader("Dataset Overview")
 
 st.write(f"**Rows:** {data.shape[0]} &nbsp;&nbsp; | &nbsp;&nbsp; **Columns:** {data.shape[1]}")
 st.dataframe(data.head(), use_container_width=True)
@@ -101,7 +101,7 @@ with st.expander("Show column info with definitions"):
     st.table(col_info)
 
 # --- Abbreviation reference section ---
-st.subheader("📘 Abbreviation Reference Guide")
+st.subheader("Abbreviation Reference Guide")
 st.write(
     "Some column names use abbreviations. Use this guide to understand what they mean."
 )
@@ -189,7 +189,7 @@ if filter_col != "None":
 # -----------------------------
 # Plot section
 # -----------------------------
-st.subheader("📈 Interactive Visualization")
+st.subheader("Interactive Visualization")
 
 if filtered_data.empty:
     st.warning("No data left after filtering. Adjust filters in the sidebar.")
@@ -257,7 +257,7 @@ else:
 # -----------------------------
 # MATLAB cleaning code display
 # -----------------------------
-st.subheader("🧮 MATLAB Cleaning Code Used")
+st.subheader("MATLAB Cleaning Code Used")
 
 st.write(
     """
@@ -313,5 +313,6 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
 
