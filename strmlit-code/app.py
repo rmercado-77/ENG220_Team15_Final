@@ -65,7 +65,7 @@ if data is None:
 # -----------------------------
 # Abbreviation definitions dictionary
 # -----------------------------
-st.header(" Indicator Definitions")
+st.header("📘 Indicator Definitions")
 
 # ---- 1. Base definitions for key columns that actually exist in your file ----
 base_definitions = {
@@ -81,7 +81,7 @@ base_definitions = {
     "STATEABBR": "State abbreviation (NM).",
     "LOCATION": "Text description of the census tract location.",
 
-    # Core EJI / domain scores (from your columns)
+    # Core EJI / domain scores
     "SPL_EJI": "State percentile ranking for the overall Environmental Justice Index (higher = more burdened).",
     "RPL_EJI": "National percentile ranking for the overall Environmental Justice Index (higher = more burdened).",
     "SPL_SER": "State percentile ranking for combined social and environmental risk.",
@@ -120,7 +120,7 @@ base_definitions = {
     "M_TOTPOP": "Margin of error for total population.",
     "E_DAYPOP": "Estimated daytime population (people present during the day).",
 
-    # Example social indicators that are definitely in your file:
+    # Social indicators
     "E_MINRTY": "Estimated number of minority (non-white) residents.",
     "EPL_MINRTY": "Percentile rank of minority population proportion (0–1 scale).",
     "E_POV200": "Estimated number of people at or below 200% of the poverty level.",
@@ -150,7 +150,7 @@ base_definitions = {
     "E_GROUPQ": "Estimated number of people in group quarters (e.g., dorms, prisons).",
     "EPL_GROUPQ": "Percentile rank for group quarters population.",
 
-    # Race/ethnicity counts (tail of your file)
+    # Race/ethnicity counts
     "AFAM": "Percent of population that is African American.",
     "E_AFAM": "Estimated number of African American residents.",
     "HISP": "Percent of population that is Hispanic/Latino.",
@@ -166,14 +166,13 @@ base_definitions = {
     "OTHERRACE": "Percent of population identifying as some other race.",
     "E_OTHERRACE": "Estimated number of residents of some other race.",
 
-    # Tribal info (definitely in your file)
+    # Tribal info
     "Tribe_PCT_Tract": "Percent of the tract area overlapping tribal lands.",
     "Tribe_Names": "Names of tribes associated with lands in or near the tract.",
     "Tribe_Flag": "Indicates whether the tract overlaps or is associated with tribal areas (1 = yes).",
 }
 
-# ---- 2. Pattern-based helper for all the other columns that use prefixes ----
-
+# ---- 2. Pattern-based suffix meanings ----
 suffix_descriptions = {
     "MINRTY": "minority population (non-white).",
     "POV200": "population at or below 200% of the poverty level.",
@@ -184,7 +183,7 @@ suffix_descriptions = {
     "UNINSUR": "people without health insurance.",
     "NOINT": "households without internet access.",
     "MOBILE": "people living in mobile homes.",
-    "GROUPQ": "people living in group quarters (dorms, prisons, etc.).",
+    "GROUPQ": "people living in group quarters.",
     "AGE65": "people age 65 or older.",
     "AGE17": "people age 17 or younger.",
     "DISABL": "people with a disability.",
@@ -192,47 +191,19 @@ suffix_descriptions = {
     "RFLD": "residential flooding risk.",
     "SWND": "strong wind hazard risk.",
     "TRND": "tornado hazard risk.",
-    "PM": "fine particulate matter (PM2.5) exposure.",
-    "OZONE": "ozone pollution exposure.",
     "ASTHMA": "asthma-related health burden.",
     "CANCER": "cancer-related health burden.",
     "CHD": "coronary heart disease burden.",
     "MHLTH": "mental health-related burden.",
     "DIABETES": "diabetes-related health burden.",
-    "NEHD": "neighborhood health disadvantage.",
-    "BURN": "burn injury-related hazard.",
-    "SMOKE": "smoke exposure (e.g., wildfire or other sources).",
-    "CFLD": "coastal or compound flooding risk.",
-    "COAL": "coal-related exposure risk.",
-    "LEAD": "lead exposure risk.",
-    "PARK": "access to park or green space.",
-    "HOUAGE": "older housing vulnerability.",
-    "WLKIND": "walkability and injury risk.",
-    "RAIL": "proximity to rail lines.",
-    "ROAD": "proximity to major roads.",
-    "AIRPRT": "proximity to airports.",
-    "IMPWTR": "impaired surface water proximity.",
 }
-st.subheader("All Columns with Definitions")
-
-col_list = list(data.columns)
-table_rows = []
-
-for col in col_list:
-    table_rows.append({
-        "Column Name": col,
-        "Definition": get_indicator_definition(col)
-    })
-
-st.dataframe(pd.DataFrame(table_rows))
-
 
 def get_indicator_definition(col: str) -> str:
-    # 1. Explicit base definition
+    # 1. Exact match
     if col in base_definitions:
         return base_definitions[col]
 
-    # 2. Pattern-based: E_, EPL_, RPL_, F_, SPL_, etc.
+    # 2. Prefix-based patterns
     prefixes = ["EPL_", "E_", "RPL_", "F_", "SPL_"]
     for prefix in prefixes:
         if col.startswith(prefix):
@@ -245,12 +216,28 @@ def get_indicator_definition(col: str) -> str:
             if prefix == "RPL_":
                 return f"National percentile rank for {base_text}"
             if prefix == "F_":
-                return f"Reliability or flag indicator for {base_text}"
+                return f"Flag/reliability indicator for {base_text}"
             if prefix == "SPL_":
-                return f"State percentile rank for domain or indicator related to {base_text}"
+                return f"State percentile rank for {base_text}"
 
     # 3. Fallback
     return "Not yet defined (dataset-specific indicator)."
+
+# ---- 3. Build and display definitions table for ALL columns ----
+
+st.subheader("All Columns with Definitions")
+
+# assuming your DataFrame is named `data`
+col_list = list(data.columns)
+rows = []
+
+for col in col_list:
+    rows.append({
+        "Column Name": col,
+        "Definition": get_indicator_definition(col)
+    })
+
+st.dataframe(pd.DataFrame(rows))
 
 # -----------------------------
 # Dataset overview
@@ -486,6 +473,7 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
 
 
