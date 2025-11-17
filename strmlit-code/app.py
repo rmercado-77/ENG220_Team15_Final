@@ -23,6 +23,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 # -----------------------------
 # Load data
 # -----------------------------
@@ -63,9 +64,9 @@ if data is None:
     st.stop()
 
 # -----------------------------
-# Abbreviation definitions dictionary
+# Indicator definitions
 # -----------------------------
-st.header("Indicator Definitions")
+st.header("📘 Indicator Definitions")
 
 # ---- 1. Base definitions for key columns that actually exist in your file ----
 base_definitions = {
@@ -223,6 +224,23 @@ def get_indicator_definition(col: str) -> str:
     # 3. Fallback
     return "Not yet defined (dataset-specific indicator)."
 
+# Quick key abbreviations
+st.subheader("Key Abbreviation Quick Reference")
+for key in ["SPL_EJI", "RPL_EJI", "E_POV200", "EPL_POV200", "E_MINRTY", "EPL_MINRTY"]:
+    if key in data.columns:
+        st.markdown(f"**{key}** — {get_indicator_definition(key)}")
+
+# Full table of all columns + definitions
+st.subheader("All Columns with Definitions")
+rows = []
+for col in data.columns:
+    rows.append({
+        "Column Name": col,
+        "Definition": get_indicator_definition(col)
+    })
+
+st.dataframe(pd.DataFrame(rows), use_container_width=True)
+
 # -----------------------------
 # Dataset overview
 # -----------------------------
@@ -234,17 +252,6 @@ st.dataframe(data.head(), use_container_width=True)
 with st.expander("Show summary statistics"):
     st.write("### Numeric Columns Summary")
     st.write(data.describe())
-
-
-# --- Abbreviation reference section ---
-st.subheader("Abbreviation Reference Guide")
-st.write(
-    "Some column names use abbreviations. Use this guide to understand what they mean."
-)
-
-with st.expander("Show abbreviation definitions"):
-    for key, value in ABBREV_DEFS.items():
-        st.markdown(f"**{key}** — {value}")
 
 # -----------------------------
 # Sidebar controls for plotting
@@ -449,7 +456,6 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
-
 
 
 
