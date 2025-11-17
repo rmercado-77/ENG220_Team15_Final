@@ -65,7 +65,7 @@ if data is None:
 # -----------------------------
 # Abbreviation definitions dictionary
 # -----------------------------
-st.header("📘 Indicator Definitions")
+st.header("Indicator Definitions")
 
 # ---- 1. Base definitions for key columns that actually exist in your file ----
 base_definitions = {
@@ -222,22 +222,6 @@ def get_indicator_definition(col: str) -> str:
 
     # 3. Fallback
     return "Not yet defined (dataset-specific indicator)."
-
-# ---- 3. Build and display definitions table for ALL columns ----
-
-st.subheader("All Columns with Definitions")
-
-# assuming your DataFrame is named `data`
-col_list = list(data.columns)
-rows = []
-
-for col in col_list:
-    rows.append({
-        "Column Name": col,
-        "Definition": get_indicator_definition(col)
-    })
-
-st.dataframe(pd.DataFrame(rows))
 
 # -----------------------------
 # Dataset overview
@@ -473,6 +457,7 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
 
 
