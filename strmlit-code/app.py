@@ -6,20 +6,23 @@ import plotly.express as px
 # Page config
 # -----------------------------
 st.set_page_config(
-    page_title="EJI 2024 New Mexico – Clean Data Dashboard",
-    page_icon="📊",
+    page_title="Team 15 Environmental Justice Dashboard",
+    page_icon="🌎",
     layout="wide",
 )
 
-st.title("📊 EJI 2024 New Mexico – Clean Dataset Dashboard")
-st.write(
+st.markdown(
     """
-    This app displays the cleaned **EJI 2024 New Mexico** dataset and provides an 
-    interactive dashboard for visual exploration. The dataset was cleaned in MATLAB
-    and saved as `EJI_2024_New_Mexico_CLEAN.csv`.
-    """
+    <h1 style='text-align: center; color: #00c8ff;'>
+        Team 15 Environmental Justice Dashboard
+    </h1>
+    <p style='text-align: center; color: #d9d9d9; font-size: 18px;'>
+        Interactive Analysis of the EJI 2024 New Mexico Dataset
+    </p>
+    <br>
+    """,
+    unsafe_allow_html=True
 )
-
 # -----------------------------
 # Load data
 # -----------------------------
@@ -310,4 +313,5 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
