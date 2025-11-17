@@ -62,11 +62,78 @@ if data is None:
         with st.expander("Show error details"):
             st.code(data_load_error)
     st.stop()
+# -----------------------------
+# Plot section
+# -----------------------------
+st.subheader("Interactive Visualization")
+
+if filtered_data.empty:
+    st.warning("No data left after filtering. Adjust filters in the sidebar.")
+else:
+    fig = None
+
+    if plot_type == "Line":
+        if y_col is None:
+            st.error("Please select a Y-axis column in the sidebar.")
+        else:
+            fig = px.line(
+                filtered_data,
+                x=x_col,
+                y=y_col,
+                color=color_col,
+                title=f"{plot_type} Plot: {y_col} vs {x_col}"
+            )
+
+    elif plot_type == "Scatter":
+        if y_col is None:
+            st.error("Please select a Y-axis column in the sidebar.")
+        else:
+            fig = px.scatter(
+                filtered_data,
+                x=x_col,
+                y=y_col,
+                color=color_col,
+                title=f"{plot_type} Plot: {y_col} vs {x_col}",
+                hover_data=all_cols
+            )
+
+    elif plot_type == "Bar":
+        if y_col is None:
+            st.error("Please select a Y-axis column in the sidebar.")
+        else:
+            fig = px.bar(
+                filtered_data,
+                x=x_col,
+                y=y_col,
+                color=color_col,
+                title=f"{plot_type} Plot: {y_col} vs {x_col}"
+            )
+
+    elif plot_type == "Histogram":
+        fig = px.histogram(
+            filtered_data,
+            x=x_col,
+            color=color_col,
+            nbins=30,
+            title=f"{plot_type} of {x_col}"
+        )
+
+    elif plot_type == "Box":
+        fig = px.box(
+            filtered_data,
+            x=x_col,
+            y=y_col,
+            color=color_col,
+            title=f"{plot_type} Plot"
+        )
+
+    if fig is not None:
+        st.plotly_chart(fig, use_container_width=True)
 
 # -----------------------------
 # Indicator definitions
 # -----------------------------
-st.header("📘 Indicator Definitions")
+st.header("Indicator Definitions")
 
 # ---- 1. Base definitions for key columns that actually exist in your file ----
 base_definitions = {
@@ -330,74 +397,6 @@ if filter_col != "None":
         filtered_data = filtered_data[filtered_data[filter_col].isin(selected_vals)]
 
 # -----------------------------
-# Plot section
-# -----------------------------
-st.subheader("Interactive Visualization")
-
-if filtered_data.empty:
-    st.warning("No data left after filtering. Adjust filters in the sidebar.")
-else:
-    fig = None
-
-    if plot_type == "Line":
-        if y_col is None:
-            st.error("Please select a Y-axis column in the sidebar.")
-        else:
-            fig = px.line(
-                filtered_data,
-                x=x_col,
-                y=y_col,
-                color=color_col,
-                title=f"{plot_type} Plot: {y_col} vs {x_col}"
-            )
-
-    elif plot_type == "Scatter":
-        if y_col is None:
-            st.error("Please select a Y-axis column in the sidebar.")
-        else:
-            fig = px.scatter(
-                filtered_data,
-                x=x_col,
-                y=y_col,
-                color=color_col,
-                title=f"{plot_type} Plot: {y_col} vs {x_col}",
-                hover_data=all_cols
-            )
-
-    elif plot_type == "Bar":
-        if y_col is None:
-            st.error("Please select a Y-axis column in the sidebar.")
-        else:
-            fig = px.bar(
-                filtered_data,
-                x=x_col,
-                y=y_col,
-                color=color_col,
-                title=f"{plot_type} Plot: {y_col} vs {x_col}"
-            )
-
-    elif plot_type == "Histogram":
-        fig = px.histogram(
-            filtered_data,
-            x=x_col,
-            color=color_col,
-            nbins=30,
-            title=f"{plot_type} of {x_col}"
-        )
-
-    elif plot_type == "Box":
-        fig = px.box(
-            filtered_data,
-            x=x_col,
-            y=y_col,
-            color=color_col,
-            title=f"{plot_type} Plot"
-        )
-
-    if fig is not None:
-        st.plotly_chart(fig, use_container_width=True)
-
-# -----------------------------
 # MATLAB cleaning code display
 # -----------------------------
 st.subheader("MATLAB Cleaning Code Used")
@@ -456,6 +455,7 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
 
 
