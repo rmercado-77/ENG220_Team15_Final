@@ -65,19 +65,192 @@ if data is None:
 # -----------------------------
 # Abbreviation definitions dictionary
 # -----------------------------
-ABBREV_DEFS = {
-    "STATEFP": "State FIPS Code — standardized code identifying each U.S. state.",
-    "COUNTYFP": "County FIPS Code — standardized 3-digit identifier for each county.",
-    "TRACTCE": "Census Tract Code — identifies a specific census tract within a county.",
-    "GEOID": "Geographic Identifier — unique ID combining state, county, and tract.",
-    "NAME": "Name of the geographic area (e.g., census tract name).",
-    "ALAND": "Land area in square meters.",
-    "AWATER": "Water area in square meters.",
-    "INTPTLAT": "Latitude of an internal reference point (centroid) for the area.",
-    "INTPTLONG": "Longitude of an internal reference point (centroid) for the area.",
-    # Add more here if your dataset has additional abbreviations:
-    # "VAR_NAME": "Explanation ..."
+st.header(" Indicator Definitions")
+
+# ---- 1. Base definitions for key columns that actually exist in your file ----
+base_definitions = {
+    # GEO / ID
+    "STATEFP": "State FIPS code (2-digit code identifying the state).",
+    "COUNTYFP": "County FIPS code (3-digit code identifying the county).",
+    "TRACTCE": "Census tract code (6-digit identifier within the county).",
+    "AFFGEOID": "Full Census geographic identifier used by the Census API.",
+    "GEOID": "Full Census tract ID (STATEFP + COUNTYFP + TRACTCE).",
+    "GEOID_2020": "2020 full Census tract ID.",
+    "COUNTY": "County name.",
+    "StateDesc": "State name (New Mexico).",
+    "STATEABBR": "State abbreviation (NM).",
+    "LOCATION": "Text description of the census tract location.",
+
+    # Core EJI / domain scores (from your columns)
+    "SPL_EJI": "State percentile ranking for the overall Environmental Justice Index (higher = more burdened).",
+    "RPL_EJI": "National percentile ranking for the overall Environmental Justice Index (higher = more burdened).",
+    "SPL_SER": "State percentile ranking for combined social and environmental risk.",
+    "SPL_EJI_CBM": "State percentile for cumulative EJ burden (combined).",
+    "RPL_EJI_CBM": "National percentile for cumulative EJ burden (combined).",
+
+    # Social Vulnerability Metrics (SVM) domains
+    "SPL_SVM": "State percentile for overall social vulnerability metrics domain.",
+    "RPL_SVM": "National percentile for overall social vulnerability metrics domain.",
+    "SPL_SVM_DOM1": "State percentile for Social Vulnerability Domain 1 (e.g., socioeconomic).",
+    "SPL_SVM_DOM2": "State percentile for Social Vulnerability Domain 2 (e.g., household composition).",
+    "SPL_SVM_DOM3": "State percentile for Social Vulnerability Domain 3 (e.g., minority status & language).",
+    "SPL_SVM_DOM4": "State percentile for Social Vulnerability Domain 4 (e.g., housing & transportation).",
+
+    # Environmental Burden Metrics (EBM) domains
+    "SPL_EBM": "State percentile for overall environmental burden metrics domain.",
+    "RPL_EBM": "National percentile for overall environmental burden metrics domain.",
+    "SPL_EBM_DOM1": "State percentile for Environmental Domain 1 (e.g., air pollution).",
+    "SPL_EBM_DOM2": "State percentile for Environmental Domain 2 (e.g., water or waste facilities).",
+    "SPL_EBM_DOM3": "State percentile for Environmental Domain 3.",
+    "SPL_EBM_DOM4": "State percentile for Environmental Domain 4.",
+    "SPL_EBM_DOM5": "State percentile for Environmental Domain 5.",
+
+    # Cumulative Burden Metrics (CBM) domains
+    "SPL_CBM": "State percentile for overall cumulative burden metrics domain.",
+    "RPL_CBM": "National percentile for overall cumulative burden metrics domain.",
+    "SPL_CBM_DOM1": "State percentile for Cumulative Burden Domain 1.",
+    "SPL_CBM_DOM2": "State percentile for Cumulative Burden Domain 2.",
+    "SPL_CBM_DOM3": "State percentile for Cumulative Burden Domain 3.",
+    "RPL_CBM_DOM1": "National percentile for Cumulative Burden Domain 1.",
+    "RPL_CBM_DOM2": "National percentile for Cumulative Burden Domain 2.",
+    "RPL_CBM_DOM3": "National percentile for Cumulative Burden Domain 3.",
+
+    # Population counts
+    "E_TOTPOP": "Estimated total population of the census tract.",
+    "M_TOTPOP": "Margin of error for total population.",
+    "E_DAYPOP": "Estimated daytime population (people present during the day).",
+
+    # Example social indicators that are definitely in your file:
+    "E_MINRTY": "Estimated number of minority (non-white) residents.",
+    "EPL_MINRTY": "Percentile rank of minority population proportion (0–1 scale).",
+    "E_POV200": "Estimated number of people at or below 200% of the poverty level.",
+    "EPL_POV200": "Percentile rank of population at/under 200% poverty.",
+    "E_NOHSDP": "Estimated number of adults (25+) without a high school diploma.",
+    "EPL_NOHSDP": "Percentile rank for low educational attainment.",
+    "E_UNEMP": "Estimated number of unemployed individuals (16+ in labor force).",
+    "EPL_UNEMP": "Percentile rank for unemployment.",
+    "E_RENTER": "Estimated number of renter-occupied housing units.",
+    "EPL_RENTER": "Percentile rank for renter housing.",
+    "E_HOUBDN": "Estimated number of households severely burdened by housing costs.",
+    "EPL_HOUBDN": "Percentile rank for housing cost burden.",
+    "E_UNINSUR": "Estimated number of people without health insurance.",
+    "EPL_UNINSUR": "Percentile rank for lack of health insurance.",
+    "E_NOINT": "Estimated number of households without internet access.",
+    "EPL_NOINT": "Percentile rank for lack of internet access.",
+    "E_AGE65": "Estimated number of people age 65 or older.",
+    "EPL_AGE65": "Percentile rank for older adult population.",
+    "E_AGE17": "Estimated number of people age 17 or younger.",
+    "EPL_AGE17": "Percentile rank for child/youth population.",
+    "E_DISABL": "Estimated number of people with a disability.",
+    "EPL_DISABL": "Percentile rank for disability prevalence.",
+    "E_LIMENG": "Estimated number of people who speak English less than 'very well'.",
+    "EPL_LIMENG": "Percentile rank for limited English proficiency.",
+    "E_MOBILE": "Estimated number of people living in mobile homes.",
+    "EPL_MOBILE": "Percentile rank for mobile home housing.",
+    "E_GROUPQ": "Estimated number of people in group quarters (e.g., dorms, prisons).",
+    "EPL_GROUPQ": "Percentile rank for group quarters population.",
+
+    # Race/ethnicity counts (tail of your file)
+    "AFAM": "Percent of population that is African American.",
+    "E_AFAM": "Estimated number of African American residents.",
+    "HISP": "Percent of population that is Hispanic/Latino.",
+    "E_HISP": "Estimated number of Hispanic/Latino residents.",
+    "ASIAN": "Percent of population that is Asian.",
+    "E_ASIAN": "Estimated number of Asian residents.",
+    "AIAN": "Percent of population that is American Indian/Alaska Native.",
+    "E_AIAN": "Estimated number of American Indian/Alaska Native residents.",
+    "NHPI": "Percent of population that is Native Hawaiian or Pacific Islander.",
+    "E_NHPI": "Estimated number of Native Hawaiian/Pacific Islander residents.",
+    "TWOMORE": "Percent of population identifying with two or more races.",
+    "E_TWOMORE": "Estimated number of residents of two or more races.",
+    "OTHERRACE": "Percent of population identifying as some other race.",
+    "E_OTHERRACE": "Estimated number of residents of some other race.",
+
+    # Tribal info (definitely in your file)
+    "Tribe_PCT_Tract": "Percent of the tract area overlapping tribal lands.",
+    "Tribe_Names": "Names of tribes associated with lands in or near the tract.",
+    "Tribe_Flag": "Indicates whether the tract overlaps or is associated with tribal areas (1 = yes).",
 }
+
+# ---- 2. Pattern-based helper for all the other columns that use prefixes ----
+
+suffix_descriptions = {
+    "MINRTY": "minority population (non-white).",
+    "POV200": "population at or below 200% of the poverty level.",
+    "NOHSDP": "adults without a high school diploma.",
+    "UNEMP": "unemployed individuals (16+ in the labor force).",
+    "RENTER": "renter-occupied housing units.",
+    "HOUBDN": "households with severe housing cost burden.",
+    "UNINSUR": "people without health insurance.",
+    "NOINT": "households without internet access.",
+    "MOBILE": "people living in mobile homes.",
+    "GROUPQ": "people living in group quarters (dorms, prisons, etc.).",
+    "AGE65": "people age 65 or older.",
+    "AGE17": "people age 17 or younger.",
+    "DISABL": "people with a disability.",
+    "LIMENG": "people who speak English less than very well.",
+    "RFLD": "residential flooding risk.",
+    "SWND": "strong wind hazard risk.",
+    "TRND": "tornado hazard risk.",
+    "PM": "fine particulate matter (PM2.5) exposure.",
+    "OZONE": "ozone pollution exposure.",
+    "ASTHMA": "asthma-related health burden.",
+    "CANCER": "cancer-related health burden.",
+    "CHD": "coronary heart disease burden.",
+    "MHLTH": "mental health-related burden.",
+    "DIABETES": "diabetes-related health burden.",
+    "NEHD": "neighborhood health disadvantage.",
+    "BURN": "burn injury-related hazard.",
+    "SMOKE": "smoke exposure (e.g., wildfire or other sources).",
+    "CFLD": "coastal or compound flooding risk.",
+    "COAL": "coal-related exposure risk.",
+    "LEAD": "lead exposure risk.",
+    "PARK": "access to park or green space.",
+    "HOUAGE": "older housing vulnerability.",
+    "WLKIND": "walkability and injury risk.",
+    "RAIL": "proximity to rail lines.",
+    "ROAD": "proximity to major roads.",
+    "AIRPRT": "proximity to airports.",
+    "IMPWTR": "impaired surface water proximity.",
+}
+st.subheader("All Columns with Definitions")
+
+col_list = list(df.columns)
+table_rows = []
+
+for col in col_list:
+    table_rows.append({
+        "Column Name": col,
+        "Definition": get_indicator_definition(col)
+    })
+
+st.dataframe(pd.DataFrame(table_rows))
+
+
+def get_indicator_definition(col: str) -> str:
+    # 1. Explicit base definition
+    if col in base_definitions:
+        return base_definitions[col]
+
+    # 2. Pattern-based: E_, EPL_, RPL_, F_, SPL_, etc.
+    prefixes = ["EPL_", "E_", "RPL_", "F_", "SPL_"]
+    for prefix in prefixes:
+        if col.startswith(prefix):
+            suffix = col[len(prefix):]
+            base_text = suffix_descriptions.get(suffix, suffix)
+            if prefix == "E_":
+                return f"Estimated count related to {base_text}"
+            if prefix == "EPL_":
+                return f"Percentile rank (0–1) for {base_text}"
+            if prefix == "RPL_":
+                return f"National percentile rank for {base_text}"
+            if prefix == "F_":
+                return f"Reliability or flag indicator for {base_text}"
+            if prefix == "SPL_":
+                return f"State percentile rank for domain or indicator related to {base_text}"
+
+    # 3. Fallback
+    return "Not yet defined (dataset-specific indicator)."
 
 # -----------------------------
 # Dataset overview
@@ -313,6 +486,7 @@ fprintf('Cleaned data saved as %s\\n', outfile);
 
 with st.expander("Show MATLAB code"):
     st.code(matlab_code, language="matlab")
+
 
 
 
